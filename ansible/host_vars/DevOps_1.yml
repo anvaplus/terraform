@@ -1,0 +1,2 @@
+---
+test_variable_host_vars: "variable from host_vars for DevOps_1 host"

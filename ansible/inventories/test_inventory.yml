@@ -1,0 +1,36 @@
+all:
+  hosts:
+      Support_DEV:
+        ansible_host: 0.0.0.0
+        login_user: [user]
+      Support_PROD:
+        ansible_host: 0.0.0.0
+        login_user: [user]
+  children:
+    Support_VM_group: #Collection of hosts belonging to the 'Support_VM' group
+      hosts:
+        Support_DEV:
+          ansible_host: 0.0.0.0
+          login_user: [user]
+        Support_PROD:
+          ansible_host: 0.0.0.0
+          login_user: [user]
+    Process_VM_group: #Collection of hosts belonging to the 'Process_VM' group
+      hosts:
+        Process_DEV:
+          ansible_host: 0.0.0.0
+          login_user: [user]
+        Process_UAT:
+          ansible_host: 0.0.0.0
+          login_user: [user]
+        Process_PRE:
+          ansible_host: 0.0.0.0
+          login_user: [user]
+        Process_PROD:
+          ansible_host: 0.0.0.0
+          login_user: [user]
+    DevOps_VM_group: #Collection of hosts belonging to the 'DevOps_VM' group
+      hosts:
+        DevOps_1:
+          ansible_host: 0.0.0.0
+          login_user: [user]

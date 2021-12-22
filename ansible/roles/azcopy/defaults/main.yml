@@ -1,0 +1,10 @@
+---
+# defaults file for azcopy
+azcopy_pkg_deps:
+  - tar
+  - unzip
+azcopy_tmp_install: /tmp/azcopy
+azcopy_bin_path: /usr/local/bin
+azcopy_pkg_url: https://azcopyvnext.azureedge.net/release20210616/azcopy_linux_amd64_10.11.0.tar.gz
+azcopy_version: 10.11.0
+azcopy_sha256: sha256:97477b5ffd8dd223fcfa7e177844dea5b5bcead5223ef65ac96b22337b83a37e

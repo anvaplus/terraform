@@ -1,0 +1,22 @@
+---
+# tasks file for azure-cli
+- name: Install required system packages
+  apt:
+    name: "{{ azure_cli_pkg_deps }}"
+    state: present
+    update_cache: yes
+- name: Add Microsoft APT key
+  apt_key:
+    url: "{{ azure_cli_microsoft_apt_url }}"
+    state: present
+  when: ansible_os_family == "Debian"
+- name: Add the Azure CLI repository
+  apt_repository:
+    repo: "{{ azure_cli_repository }}"
+    state: present
+  when: ansible_os_family == "Debian"
+- name: Update apt install the azure-cli package
+  apt:
+    name: azure-cli
+    state: present
+    update_cache: yes

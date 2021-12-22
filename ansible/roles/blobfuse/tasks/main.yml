@@ -1,0 +1,93 @@
+---
+# tasks file for blobfuse
+
+- name: Get installed packages
+  package_facts:
+    manager: auto
+
+- name: "Search blobfuse package"
+  debug:
+    msg: "blobfuse found"
+  when: "'blobfuse' in ansible_facts.packages"
+  register: package_check
+
+- name: Get current blobfuse version installed
+  shell: "blobfuse -v | rev | cut -d ' ' -f1 | rev"
+  register: current_version
+  when: package_check.msg is defined and package_check.msg == "blobfuse found"
+
+- name: Preparing blobfuse {{ blobfuse_version }} for installation
+  lineinfile:
+    name: "{{ blobfuse_tmp_install }}/blobfuse_version.txt"
+    regexp: '^'
+    line: "{{ blobfuse_version }}"
+    state: present
+    create: yes
+  register: blobfuse_version_installed
+
+- name: Checking installed version
+  debug:
+    msg: "The version {{ blobfuse_version }} is already installed"
+  vars:
+    current_vers: "{{ current_version.stdout }}"
+    desired_vers: "{{ blobfuse_version }}"
+  when:
+  - package_check.msg is defined and current_version is defined
+  - package_check.msg == "blobfuse found" and current_vers == desired_vers
+
+- name: "Uninstall current version"
+  apt:
+    name:  blobfuse
+    state: absent
+    update_cache: yes
+    autoclean: yes
+    autoremove: yes
+  vars:
+    current_vers: "{{ current_version.stdout }}"
+    desired_vers: "{{ blobfuse_version }}"
+  when:
+    - package_check.msg is defined and current_version is defined
+    - blobfuse_version_installed is changed and package_check.msg == "blobfuse found" and current_vers != desired_vers
+
+- name: Create remote temporary folder
+  file:
+    path: "{{ blobfuse_tmp_install }}"
+    state: directory
+  register: blobfuse_create_remote_dir
+
+- name: Preparing for installation
+  debug:
+    msg: "The version {{ blobfuse_version }} will be installed"
+  when: blobfuse_version_installed is changed
+
+- name: "Get Ubuntu {{ ansible_distribution_version }} Microsoft package repository"
+  get_url:
+    url: "{{ blobfuse_microsoft_package_url }}"
+    dest: "{{ blobfuse_tmp_install }}/blobfuse_{{ blobfuse_version }}_ubuntu_{{ ansible_distribution_version }}.deb"
+  register: blobfuse_package
+  when:
+    - blobfuse_version_installed is changed or blobfuse_create_remote_dir is changed
+
+- name: Add blobfuse_{{ blobfuse_version }}_ubuntu_{{ ansible_distribution_version }}.deb package
+  apt:
+    deb: "{{ blobfuse_tmp_install }}/blobfuse_{{ blobfuse_version }}_ubuntu_{{ ansible_distribution_version }}.deb"
+  when:
+    - blobfuse_version_installed is changed or blobfuse_create_remote_dir is changed
+
+- name: Install blobfuse
+  apt:
+    name:  blobfuse
+    state: present
+    update_cache: yes
+  when:
+    - blobfuse_version_installed is changed or blobfuse_create_remote_dir is changed
+
+- name: Get new installed version
+  shell: "blobfuse -v | rev | cut -d ' ' -f1 | rev"
+  register: new_version_installed
+  when: blobfuse_version_installed is changed
+
+- name: Display current version installed
+  debug:
+    msg: "The current version is: {{ new_version_installed.stdout }}. The desired version is {{ blobfuse_version }}"
+  when: blobfuse_version_installed is changed

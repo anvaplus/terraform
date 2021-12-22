@@ -1,0 +1,8 @@
+---
+- hosts: Process_VM_group
+  become: yes
+  roles:
+    - roles/docker
+    - roles/azure-cli
+    - roles/azcopy
+    - roles/blobfuse

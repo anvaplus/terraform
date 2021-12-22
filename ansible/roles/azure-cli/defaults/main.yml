@@ -1,0 +1,11 @@
+---
+# defaults file for azure-cli
+azure_cli_pkg_deps:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+
+azure_cli_microsoft_apt_url: https://packages.microsoft.com/keys/microsoft.asc
+azure_cli_repository: deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ {{ ansible_distribution_release }} main

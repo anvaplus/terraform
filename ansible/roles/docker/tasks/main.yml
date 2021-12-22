@@ -1,0 +1,37 @@
+---
+# tasks file for docker
+- name: Install package dependencies
+  package:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items: "{{ docker_pkg_deps }}"
+- name: Add Docker GPG apt Key
+  apt_key:
+    url: "{{ docker_gpg_key }}"
+    state: present
+- name: Add Docker Repository
+  apt_repository:
+    repo: "{{ docker_repo_url }}"
+    state: present
+- name: Update apt and install docker
+  package:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+  with_items: "{{ docker_pkg }}"
+- name: Create group "docker"
+  ansible.builtin.group:
+    name: docker
+    state: present
+- name: Add the user "{{ login_user }}" to the "docker" group
+  ansible.builtin.user:
+    name: "{{ login_user }}"
+    state: present
+    groups: docker
+    append: yes
+  register: info_user
+- name: Install "python3-docker" module
+  apt:
+      name:  python3-docker
+      state: present
